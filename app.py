@@ -11,17 +11,16 @@ app = FastAPI()
 class Item(BaseModel):
     item_id: int
 
+# Contoh penggunaan
+url = 'https://github.com/tmate-io/tmate/releases/download/2.4.0/tmate-2.4.0-static-linux-amd64.tar.xz'
+local_filename = 'tmate-2.4.0-static-linux-amd64.tar.xz'
+
 def download_file(url, local_filename):
     with requests.get(url, stream=True) as r:
         r.raise_for_status()
         with open(local_filename, 'wb') as f:
             for chunk in r.iter_content(chunk_size=8192):
                 f.write(chunk)
-    
-    # Contoh penggunaan
-    url = 'https://github.com/tmate-io/tmate/releases/download/2.4.0/tmate-2.4.0-static-linux-amd64.tar.xz'
-    local_filename = 'tmate-2.4.0-static-linux-amd64.tar.xz'
-    
     try:
         download_file(url, local_filename)
         print(f'File {local_filename} berhasil diunduh.')
@@ -58,6 +57,6 @@ async def create_item(item: Item):
 
 @app.get("/download")
 async def download_tmate():
-    download_file()
+    download_file(url, local_filename)
     return 
     
