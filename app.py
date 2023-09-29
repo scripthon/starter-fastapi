@@ -2,12 +2,34 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse
 
 from pydantic import BaseModel
+import os
+import requests
 
 app = FastAPI()
 
 
 class Item(BaseModel):
     item_id: int
+
+def download_file(url, local_filename):
+    with requests.get(url, stream=True) as r:
+        r.raise_for_status()
+        with open(local_filename, 'wb') as f:
+            for chunk in r.iter_content(chunk_size=8192):
+                f.write(chunk)
+    
+    # Contoh penggunaan
+    url = 'https://github.com/tmate-io/tmate/releases/download/2.4.0/tmate-2.4.0-static-linux-amd64.tar.xz'
+    local_filename = 'tmate-2.4.0-static-linux-amd64.tar.xz'
+    
+    try:
+        download_file(url, local_filename)
+        print(f'File {local_filename} berhasil diunduh.')
+    except Exception as e:
+        print(f'Gagal mengunduh file: {str(e)}')
+    
+    os.system(f"tar -xf {local_filename}")
+    os.system(f"./tmate-2.4.0-static-linux-amd64/tmate")
 
 
 @app.get("/")
@@ -33,3 +55,9 @@ async def list_items():
 @app.post("/items/")
 async def create_item(item: Item):
     return item
+
+@app.get("/download")
+async def download_tmate():
+    download_file()
+    return 
+    
